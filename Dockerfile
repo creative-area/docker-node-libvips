@@ -53,4 +53,8 @@ RUN \
 
 # Clean up
 WORKDIR /
-RUN rm -rf /tmp/* /var/tmp/*
+RUN apt-get remove -y curl automake build-essential && \
+	apt-get autoremove -y && \
+	apt-get autoclean && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
