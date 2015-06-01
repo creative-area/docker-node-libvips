@@ -6,7 +6,7 @@ MAINTAINER CREATIVE AREA <contact@creative-area.net>
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install basics dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get -qq update && apt-get install -y \
 	curl \
 	unzip \
 	pkg-config \
@@ -38,23 +38,19 @@ RUN curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash - && apt-get 
 
 # Build libvips
 WORKDIR /tmp
-ENV LIBVIPS_VERSION_MAJOR 7
-ENV LIBVIPS_VERSION_MINOR 42
-ENV LIBVIPS_VERSION_PATCH 3
+ENV LIBVIPS_VERSION_MAJOR 8
+ENV LIBVIPS_VERSION_MINOR 0
+ENV LIBVIPS_VERSION_PATCH 2
 ENV LIBVIPS_VERSION $LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR.$LIBVIPS_VERSION_PATCH
 RUN \
   curl -O http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
   tar zvxf vips-$LIBVIPS_VERSION.tar.gz && \
   cd vips-$LIBVIPS_VERSION && \
-  ./configure --enable-debug=no --enable-docs=no --enable-cxx=yes --without-python --without-orc --without-fftw --without-gsf $1 && \
+  ./configure --disable-debug --disable-docs --disable-static --disable-introspection --enable-cxx=yes --without-python --without-orc --without-fftw $1 && \
   make && \
   make install && \
   ldconfig
 
 # Clean up
 WORKDIR /
-RUN apt-get remove -y curl automake build-essential && \
-	apt-get autoremove -y && \
-	apt-get autoclean && \
-	apt-get clean && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm -rf /tmp/* /var/tmp/*
