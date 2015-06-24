@@ -53,4 +53,6 @@ RUN \
 
 # Clean up
 WORKDIR /
-RUN rm -rf /tmp/* /var/tmp/*
+RUN apt-get autoclean && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
