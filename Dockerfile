@@ -33,7 +33,7 @@ RUN apt-get install -y \
 	libmagickcore-dev
 
 # Install NodeJS
-ENV NODE_VERSION 0.12
+ENV NODE_VERSION 4.x
 RUN curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash - && apt-get install -y nodejs
 
 # Build libvips
