@@ -5,13 +5,17 @@ MAINTAINER CREATIVE AREA <contact@creative-area.net>
 # Let the conatiner know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get -qq update && apt-get install -y \
+# Common dependencies
+RUN apt-get -q update && apt-get install -y \
 	curl \
 	unzip \
+	git \
 	pkg-config \
 	automake \
-	build-essential \
-	git \
+	build-essential
+
+# Libvips dependencies
+RUN apt-get install -y \
 	gobject-introspection \
 	zlib1g-dev \
 	gtk-doc-tools \
@@ -35,6 +39,32 @@ RUN apt-get -qq update && apt-get install -y \
 	libcairo2-dev \
 	sqlite3 \
 	libsqlite3-dev
+
+# Install JRE
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A \
+	&& echo 'deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main' > /etc/apt/sources.list.d/openjdk.list
+
+# add a simple script that can auto-detect the appropriate JAVA_HOME value
+# based on whether the JDK or only the JRE is installed
+RUN { \
+		echo '#!/bin/bash'; \
+		echo 'set -e'; \
+		echo; \
+		echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
+	} > /usr/local/bin/docker-java-home \
+	&& chmod +x /usr/local/bin/docker-java-home
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/jre
+
+ENV JAVA_VERSION 8u72
+ENV JAVA_UBUNTU_VERSION 8u72-b15-1~trusty1
+
+RUN set -x \
+	&& apt-get -q update \
+	&& apt-get install -y openjdk-8-jre-headless="$JAVA_UBUNTU_VERSION" \
+	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
+
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 # Install NodeJS
 ENV NODE_VERSION 5.x
