@@ -1,5 +1,4 @@
-#FROM creativearea/libvips:8.2.2-0
-FROM florentb/libvips
+FROM creativearea/libvips:8.2.2-0
 
 MAINTAINER CREATIVE AREA <contact@creative-area.net>
 
