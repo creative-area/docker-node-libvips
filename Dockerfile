@@ -1,92 +1,56 @@
-FROM ubuntu:14.04
+#FROM creativearea/libvips:8.2.2-0
+FROM florentb/libvips
 
 MAINTAINER CREATIVE AREA <contact@creative-area.net>
 
-# Let the conatiner know that there is no tty
-ENV DEBIAN_FRONTEND noninteractive
-
-# Common dependencies
-RUN apt-get -q update && apt-get install -y \
+RUN apk add --no-cache --virtual build-deps \
 	curl \
-	unzip \
-	git \
-	pkg-config \
-	automake \
-	build-essential
+	make \
+	gcc \
+	g++ \
+	binutils-gold \
+	python \
+	linux-headers \
+	paxctl \
+	libgcc \
+	libstdc++ \
+	gnupg
 
-# Libvips dependencies
-RUN apt-get install -y \
-	gobject-introspection \
-	zlib1g-dev \
-	gtk-doc-tools \
-	libglib2.0-dev \
-	libjpeg-turbo8-dev \
-	libpng12-dev \
-	libwebp-dev \
-	libtiff5-dev \
-	libexif-dev \
-	libxml2-dev \
-	swig \
-	libmagickwand-dev \
-	libpango1.0-dev \
-	libmatio-dev \
-	libopenslide-dev \
-	libgdk-pixbuf2.0-dev \
-	libgsf-1-dev \
-	liblcms2-dev \
-	libmagickcore-dev \
-	libsqlite3-dev \
-	libcairo2-dev \
-	sqlite3 \
-	libsqlite3-dev
-
-# Install JRE
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DA1A4A13543B466853BAF164EB9B1D8886F44E2A \
-	&& echo 'deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main' > /etc/apt/sources.list.d/openjdk.list
-
-# add a simple script that can auto-detect the appropriate JAVA_HOME value
-# based on whether the JDK or only the JRE is installed
-RUN { \
-		echo '#!/bin/bash'; \
-		echo 'set -e'; \
-		echo; \
-		echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
-	} > /usr/local/bin/docker-java-home \
-	&& chmod +x /usr/local/bin/docker-java-home
-
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/jre
-
-ENV JAVA_VERSION 8u72
-ENV JAVA_UBUNTU_VERSION 8u72-b15-1~trusty1
-
-RUN set -x \
-	&& apt-get -q update \
-	&& apt-get install -y openjdk-8-jre-headless="$JAVA_UBUNTU_VERSION" \
-	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
-
-RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+# gpg keys listed at https://github.com/nodejs/node
+RUN set -ex \
+	&& for key in \
+		9554F04D7259F04124DE6B476D5A82AC7E37093B \
+		94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
+		0034A06D9D9B0064CE8ADF6BF1747F4AD2306D93 \
+		FD3A5288F042B6850C66B31F09FE44734EB7990E \
+		71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
+		DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
+		C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+		B9AE9905FFD7803F25714661B63B535A4C206CA9 \
+	; do \
+		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+	done
 
 # Install NodeJS
-ENV NODE_VERSION 5.x
-RUN curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash - && apt-get install -y nodejs
+ENV NODE_VERSION=5.9.0 NPM_VERSION=3
 
-# Build libvips
 WORKDIR /tmp
-ENV LIBVIPS_VERSION_MAJOR 8
-ENV LIBVIPS_VERSION_MINOR 2
-ENV LIBVIPS_VERSION_PATCH 2
-ENV LIBVIPS_VERSION $LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR.$LIBVIPS_VERSION_PATCH
-RUN \
-	curl -O http://www.vips.ecs.soton.ac.uk/supported/$LIBVIPS_VERSION_MAJOR.$LIBVIPS_VERSION_MINOR/vips-$LIBVIPS_VERSION.tar.gz && \
-	tar zvxf vips-$LIBVIPS_VERSION.tar.gz && \
-	cd vips-$LIBVIPS_VERSION && \
-	./configure --disable-debug --disable-static --disable-introspection --disable-dependency-tracking --without-python --without-orc --without-fftw $1 && \
-	make && \
-	make install && \
-	ldconfig
 
-# Clean up
-WORKDIR /
-RUN apt-get autoclean && \
-	apt-get clean && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.gz && \
+	curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc && \
+	gpg --verify SHASUMS256.txt.asc && \
+	grep node-v${NODE_VERSION}.tar.gz SHASUMS256.txt.asc | sha256sum -c - && \
+	tar -zxf node-v${NODE_VERSION}.tar.gz && \
+	cd node-v${NODE_VERSION} && \
+	./configure --prefix=/usr && \
+	make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
+	make install && \
+	paxctl -cm /usr/bin/node && \
+	cd / && \
+	if [ -x /usr/bin/npm ]; then \
+		npm install -g npm@${NPM_VERSION} && \
+		find /usr/lib/node_modules/npm -name test -o -name .bin -type d | xargs rm -rf; \
+	fi
+
+RUN	rm -rf /etc/ssl /tmp/* /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp /root/.gnupg \
+		/usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html
