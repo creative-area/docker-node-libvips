@@ -51,5 +51,5 @@ RUN curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar
 		find /usr/lib/node_modules/npm -name test -o -name .bin -type d | xargs rm -rf; \
 	fi
 
-RUN	rm -rf /etc/ssl /tmp/* /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp /root/.gnupg \
+RUN rm -rf /etc/ssl /tmp/* /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp /root/.gnupg \
 		/usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html
