@@ -21,7 +21,7 @@ WORKDIR /tmp
 RUN curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.gz && \
 	tar xzf node-v${NODE_VERSION}.tar.gz && \
 	cd node-v${NODE_VERSION} && \
-	./configure --prefix=/usr && \
+	./configure --prefix=/usr --without-snapshot && \
 	NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
 	make out/Makefile && \
 	make -j${NPROC} -C out mksnapshot && \
@@ -31,3 +31,5 @@ RUN curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar
 	paxctl -cm /usr/bin/node && \
 	rm -rf /etc/ssl /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp \
 		/usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html
+
+WORKDIR /
