@@ -19,7 +19,7 @@ ENV NODE_VERSION 5.9.0
 WORKDIR /tmp
 
 RUN curl -sOL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.gz && \
-	tar xzf node-v${NODE_VERSION}.tar.gz \
+	tar xzf node-v${NODE_VERSION}.tar.gz && \
 	cd node-v${NODE_VERSION} && \
 	./configure --prefix=/usr && \
 	NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
