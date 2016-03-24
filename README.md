@@ -1,6 +1,6 @@
 # Docker Node + Libvips
 
-The easiest way to get this docker image installed is to pull the latest version from the Docker registry:
+This docker image provides **NodeJS** and **[Libvips](https://github.com/jcupitt/libvips)**
 
 ```bash
 $ docker pull creativearea/node-libvips
