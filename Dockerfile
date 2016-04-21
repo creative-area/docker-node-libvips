@@ -1,4 +1,4 @@
-FROM creativearea/libvips:8.2.3-0
+FROM creativearea/libvips:8.3.0-0
 
 MAINTAINER CREATIVE AREA <contact@creative-area.net>
 
