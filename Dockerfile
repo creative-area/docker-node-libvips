@@ -1,6 +1,9 @@
-FROM creativearea/libvips:8.3.1-1
+FROM creativearea/libvips:8.3.1-2
 
-MAINTAINER CREATIVE AREA <contact@creative-area.net>
+MAINTAINER Florent Bourgeois <florent@creative-area.net>
+
+RUN apt-get update && apt-get install -y build-essential pkg-config curl \
+	&& rm -rf /var/lib/apt/lists/*
 
 # gpg keys listed at https://github.com/nodejs/node
 RUN set -ex \
