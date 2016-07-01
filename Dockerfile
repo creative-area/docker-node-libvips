@@ -2,8 +2,7 @@ FROM creativearea/libvips:8.3.1-2
 
 MAINTAINER Florent Bourgeois <florent@creative-area.net>
 
-RUN apt-get update && apt-get install -y build-essential pkg-config curl \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential curl
 
 # gpg keys listed at https://github.com/nodejs/node
 RUN set -ex \
@@ -29,5 +28,12 @@ RUN curl -sOL "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 	&& grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
 	&& tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
 	&& rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt
+
+# cleanup
+RUN apt-get remove -y build-essential curl && \
+	apt-get autoremove -y && \
+	apt-get autoclean && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
 
 CMD [ "node" ]
