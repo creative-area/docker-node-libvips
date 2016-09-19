@@ -1,4 +1,4 @@
-FROM creativearea/libvips:8.3.1-2
+FROM creativearea/libvips:8.3.3-0
 
 MAINTAINER Florent Bourgeois <florent@creative-area.net>
 
@@ -20,7 +20,7 @@ RUN set -ex \
 	done
 
 ENV NPM_CONFIG_LOGLEVEL info
-ENV NODE_VERSION 6.3.0
+ENV NODE_VERSION 6.6.0
 
 RUN curl -sOL "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
 	&& curl -sOL "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
