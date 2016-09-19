@@ -1,5 +1,7 @@
 # Docker Node + Libvips
 
+[![](https://images.microbadger.com/badges/image/creativearea/node-libvips.svg)](http://microbadger.com/images/creativearea/node-libvips)
+
 This docker image provides **NodeJS** and **[Libvips](https://github.com/jcupitt/libvips)**
 
 ```bash
@@ -10,7 +12,7 @@ $ docker pull creativearea/node-libvips
 
 If your are using this image, chances are your Node.js project requires native addon modules that depends on LibVips.
 
-As `node-gyp` depends on Python, make, and a proper C/C++ compiler, don't forget to install the correct dependencies in your own Dockerfile. 
+As `node-gyp` depends on Python, make, and a proper C/C++ compiler, don't forget to install the correct dependencies in your own Dockerfile.
 
 ```
 FROM creativearea/node-libvips
